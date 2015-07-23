@@ -29,19 +29,19 @@ int main(int argc, char** argv){
         char key = waitKey(1);
         
         if(key == 's'){
-//            openni_engine->shotGrayAndIRImages(gray,IR);
-//            imshow("IR",IR);
-//            imshow("gray",gray);
+            openni_engine->shotGrayAndIRImages(gray,IR);
+            imshow("IR",IR);
+            imshow("gray",gray);
             
             sprintf(out_name,"%04d_left.jpg",count);
             ofs<<out_name<<endl;
             cout<<out_name<<"\t";
-//           imwrite(out_name,IR);
+           imwrite(out_name,IR);
            
             sprintf(out_name,"%04d_rignt.jpg",count);
             ofs<<out_name<<endl;
            cout<<out_name<<endl;
-//           imwrite(out_name,gray);
+           imwrite(out_name,gray);
 
             
             count++;

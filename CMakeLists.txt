@@ -22,21 +22,41 @@ include_directories("/home/carl/Work/3rdparty/Eigen3")
 include_directories(${OPENCV_INCLUDE_DIRS})
 include_directories(${OpenNI_INCLUDE_DIR})
 
+add_library(OpenNIEngine
+OpenNIEngine.h
+OpenNIEngine.cpp
+)
+
 add_executable(CalibCapture 
 OpenNICapture.cpp 
-OpenNIEngine.h
-OpenNIEngine.cpp)
+)
 
 add_executable(StereoCalib
 StereoCalib.cpp)
-#RGBDCalib.h 
-#RGBDCalib.cpp 
+
+add_executable(TestCalibResult
+OpenNIEngine.h
+OpenNIEngine.cpp
+CalibTest.cpp)
+
+target_link_libraries(OpenNIEngine
+${OpenCV_LIBS} 
+${OpenNI_LIBRARY}
+)
 
 target_link_libraries(CalibCapture 
+OpenNIEngine
 ${OpenCV_LIBS} 
-${OpenNI_LIBRARY})
+${OpenNI_LIBRARY}
+)
 
 
 target_link_libraries(StereoCalib 
 ${OpenCV_LIBS} 
+)
+
+target_link_libraries(TestCalibResult 
+OpenNIEngine
+${OpenCV_LIBS} 
 ${OpenNI_LIBRARY})
+
