@@ -22,14 +22,21 @@ include_directories("/home/carl/Work/3rdparty/Eigen3")
 include_directories(${OPENCV_INCLUDE_DIRS})
 include_directories(${OpenNI_INCLUDE_DIR})
 
-add_executable(RGBDCalib 
-main.cpp 
-RGBDCalib.h 
-RGBDCalib.cpp 
+add_executable(CalibCapture 
+OpenNICapture.cpp 
 OpenNIEngine.h
 OpenNIEngine.cpp)
 
-target_link_libraries(RGBDCalib 
+add_executable(StereoCalib
+StereoCalib.cpp)
+#RGBDCalib.h 
+#RGBDCalib.cpp 
+
+target_link_libraries(CalibCapture 
 ${OpenCV_LIBS} 
 ${OpenNI_LIBRARY})
 
+
+target_link_libraries(StereoCalib 
+${OpenCV_LIBS} 
+${OpenNI_LIBRARY})

@@ -80,8 +80,17 @@ OpenNIEngine::OpenNIEngine(const char *device_URI,
 		control->setRepeatEnabled(false);
 	}
 
+    initRGBDStreams(use_internal_calibration, requested_size_d,requested_size_d);
+    
+    tmp_ir_image.create(image_size_depth,CV_16UC1);
+    tmp_RGB_image.create(image_size_rgb,CV_8UC3);
+}
+
+
+void OpenNIEngine::initRGBDStreams(const bool use_internal_calibration, Size requested_size_rgb, Size requested_size_d)
+{
     // create depth stream
-    rc = openni_device_data.depthStream.create(openni_device_data.device,openni::SENSOR_DEPTH);
+    openni::Status rc = openni_device_data.depthStream.create(openni_device_data.device,openni::SENSOR_DEPTH);
 	if (rc == openni::STATUS_OK)
 	{
 		openni::VideoMode depthMode = findBestMode( openni_device_data.device.getSensorInfo(openni::SENSOR_DEPTH), requested_size_d.width, requested_size_d.height, openni::PIXEL_FORMAT_DEPTH_1_MM);
@@ -156,6 +165,19 @@ OpenNIEngine::OpenNIEngine(const char *device_URI,
 	openni_device_data.streams = new openni::VideoStream*[3];
 	if (depth_available) openni_device_data.streams[0] = &openni_device_data.depthStream;
 	if (color_available) openni_device_data.streams[1] = &openni_device_data.colorStream;
+     
+    rc  = openni_device_data.IRStream.create(openni_device_data.device,openni::SENSOR_IR);
+    openni::VideoMode IRMode = findBestMode(openni_device_data.device.getSensorInfo(openni::SENSOR_IR), requested_size_rgb.width, requested_size_rgb.height);
+    rc = openni_device_data.IRStream.setVideoMode(IRMode);
+    openni_device_data.IRStream.setMirroringEnabled(false);
+    
+    // rc = openni_device_data.IRStream.start();
+    
+    if(rc!=openni::STATUS_OK)
+    {
+        cout<<"can not create IR stream!"<<endl;
+    }
+   
     
     std::cout<<flush;
 }
@@ -180,6 +202,7 @@ OpenNIEngine::~OpenNIEngine()
 	openni::OpenNI::shutdown();
 }
 
+
 void OpenNIEngine::getRGBDImages(cv::Mat& rgb, cv::Mat& raw_depth)
 {
 	int changedIndex, waitStreamCount;
@@ -195,7 +218,6 @@ void OpenNIEngine::getRGBDImages(cv::Mat& rgb, cv::Mat& raw_depth)
 	if (depth_available && !openni_device_data.depthFrame.isValid()) return;
 	if (color_available && !openni_device_data.colorFrame.isValid()) return;
 
-    unsigned char *rgb_ptr = rgb.data;
 	if (color_available)
 	{
 		const openni::RGB888Pixel* colorImagePix = (const openni::RGB888Pixel*)openni_device_data.colorFrame.getData();
@@ -211,6 +233,44 @@ void OpenNIEngine::getRGBDImages(cv::Mat& rgb, cv::Mat& raw_depth)
 	else memset(raw_depth.data, 0, raw_depth.cols*raw_depth.rows * sizeof(short));
 
 	return /*true*/;
+}
+
+
+
+void OpenNIEngine::shotGrayAndIRImages(Mat &gray, Mat &ir){
+    
+    openni_device_data.colorStream.readFrame(&openni_device_data.colorFrame);
+    if (openni_device_data.colorFrame.isValid())
+    {
+        const openni::RGB888Pixel* colorImagePix = (const openni::RGB888Pixel*)openni_device_data.colorFrame.getData();
+        memcpy(tmp_RGB_image.data,colorImagePix,tmp_RGB_image.cols*tmp_RGB_image.rows*3*sizeof(unsigned char));     
+        cvtColor(tmp_RGB_image,gray,CV_RGB2GRAY);
+    }
+    else
+    {
+        cerr<<"rgb frame wrong!"<<endl;
+    }
+    
+    openni_device_data.depthStream.stop();
+    openni_device_data.colorStream.stop();
+    openni_device_data.IRStream.start();
+    
+    openni_device_data.IRStream.readFrame(&openni_device_data.IRFrame);
+    if (openni_device_data.IRFrame.isValid())
+    {
+        const openni::Grayscale16Pixel* irImagePix = (const openni::Grayscale16Pixel*)openni_device_data.IRFrame.getData();
+        memcpy(tmp_ir_image.data, irImagePix, tmp_ir_image.cols*tmp_ir_image.rows * sizeof(openni::Grayscale16Pixel));
+        tmp_ir_image.convertTo(ir,CV_8UC1);
+    }
+    else
+    {
+        cerr<<"IR frame wrong!"<<endl;
+    }
+    
+    openni_device_data.IRStream.stop();
+    openni_device_data.depthStream.start();
+    openni_device_data.colorStream.start();
+
 }
 
 cv::Size OpenNIEngine::getDepthImageSize(void) {return image_size_depth;}

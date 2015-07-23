@@ -29,6 +29,13 @@ private:
     bool depth_available;
     bool ir_available;    
     
+    cv::Mat tmp_ir_image;
+    cv::Mat tmp_RGB_image;
+    
+    void initRGBDStreams( const bool use_internal_calibration, 
+                          cv::Size requested_size_rgb, 
+                          cv::Size requested_size_d);
+    
 public:
     OpenNIEngine(
             const char *device_URI = NULL, 
@@ -38,7 +45,7 @@ public:
     
     ~OpenNIEngine();
 
-    void getRGBIRImages(cv::Mat& rgb, cv::Mat& ir);
+    void shotGrayAndIRImages(cv::Mat& gray, cv::Mat& ir);
     void getRGBDImages(cv::Mat& rgb, cv::Mat& raw_depth);
     
     cv::Size getDepthImageSize(void);
