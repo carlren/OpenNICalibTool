@@ -97,7 +97,8 @@ int main(int argc, char** argv){
     
     OpenNIEngine* openni_engine = new OpenNIEngine();
 
-    
+
+
     while(true)
     {
         openni_engine->getRGBDImages(rgb,depth);       
@@ -132,7 +133,7 @@ int main(int argc, char** argv){
     }
     
     ofs<<endl;
-    
+
     ofs<<0<<" "<<0;
     
     ofs.close();
