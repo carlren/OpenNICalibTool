@@ -5,8 +5,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 
 #set(OPEN_NI_ROOT /home/carl/Work/3rdparty/OpenNI2/)
 
-find_package(OpenCV REQUIRED)
-find_package(OpenNI REQUIRED)
+find_package(OpenCV  REQUIRED)
+find_package(OpenNI2 REQUIRED)
+find_package(Eigen3  REQUIRED)
 
 
 IF(MSVC_IDE)
@@ -18,10 +19,9 @@ ELSE(MSVC_IDE)
 ENDIF(MSVC_IDE)
 
 
-include_directories("/home/carl/Work/3rdparty")
-include_directories("/home/carl/Work/3rdparty/Eigen3")
+include_directories(${Eigen3_INCLUDE_DIRS})
 include_directories(${OPENCV_INCLUDE_DIRS})
-include_directories(${OpenNI_INCLUDE_DIR})
+include_directories(${OpenNI2_INCLUDE_DIRS})
 
 add_library(OpenNIEngine
 OpenNIEngine.h
@@ -42,13 +42,13 @@ CalibTest.cpp)
 
 target_link_libraries(OpenNIEngine
 ${OpenCV_LIBS} 
-${OpenNI_LIBRARY}
+${OPENNI2_LIBRARIES}
 )
 
 target_link_libraries(CalibCapture 
 OpenNIEngine
 ${OpenCV_LIBS} 
-${OpenNI_LIBRARY}
+${OpenNI2_LIBRARIES}
 )
 
 

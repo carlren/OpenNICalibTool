@@ -1,6 +1,6 @@
 #pragma once
 #include<opencv2/opencv.hpp>
-#include <OpenNI.h>
+#include <ni2/OpenNI.h>
 
 class OpenNIEngine
 {
