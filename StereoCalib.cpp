@@ -69,6 +69,8 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, bool useCalibrated=
     bool displayCorners = true;//true;
     const int maxScale = 2;
     // ARRAY AND VECTOR STORAGE:
+    
+    std::cout << "using square size: " << squareSize << "\n";
 
     vector<vector<Point2f> > imagePoints[2];
     vector<vector<Point3f> > objectPoints;
@@ -240,6 +242,11 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, bool useCalibrated=
     else
         cout << "Error: can not save the extrinsic parameters\n";
 
+    std::cout << "intrinsics.yml and extrinsics.yml saved.\n";
+    std::cout << "Displaying rectified images,\n";
+    std::cout << "you should see both images and the green lines should\n";
+    std::cout << "pass through the same points in both images.\n";
+    std::cout << "Press q to quit.\n";
     // OpenCV can handle left-right
     // or up-down camera arrangements
     bool isVerticalStereo = fabs(P2.at<double>(1, 3)) > fabs(P2.at<double>(0, 3));
