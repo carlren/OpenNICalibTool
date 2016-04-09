@@ -50,14 +50,15 @@ static int print_help()
             "     (1: use cvStereoCalibrate(), 2: compute fundamental\n"
             "         matrix separately) stereo. \n"
             " Calibrate the cameras and display the\n"
-            " rectified results along with the computed disparity images.   \n" << endl;
-    cout << "Usage:\n ./stereo_calib -w board_width -h board_height [-nr /*dot not view results*/] <image list XML/YML file>\n" << endl;
+            " rectified results along with the computed disparity images.   \n" 
+            " width and height are counts of the number of inner corners   \n" << endl;
+    cout << "Usage:\n ./stereo_calib -w board_width -h board_height [-s square_size_meters] [-nr /*dot not view results*/] <image list XML/YML file>\n" << endl;
     return 0;
 }
 
 
 static void
-StereoCalib(const vector<string>& imagelist, Size boardSize, bool useCalibrated=true, bool showRectified=true)
+StereoCalib(const vector<string>& imagelist, Size boardSize, bool useCalibrated=true, bool showRectified=true, double squareSize =0.38f)
 {
     if( imagelist.size() % 2 != 0 )
     {
@@ -67,8 +68,9 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, bool useCalibrated=
 
     bool displayCorners = true;//true;
     const int maxScale = 2;
-    const float squareSize = 0.038f;  // Set this to your actual square size
     // ARRAY AND VECTOR STORAGE:
+    
+    std::cout << "using square size: " << squareSize << "\n";
 
     vector<vector<Point2f> > imagePoints[2];
     vector<vector<Point3f> > objectPoints;
@@ -240,6 +242,11 @@ StereoCalib(const vector<string>& imagelist, Size boardSize, bool useCalibrated=
     else
         cout << "Error: can not save the extrinsic parameters\n";
 
+    std::cout << "intrinsics.yml and extrinsics.yml saved.\n";
+    std::cout << "Displaying rectified images,\n";
+    std::cout << "you should see both images and the green lines should\n";
+    std::cout << "pass through the same points in both images.\n";
+    std::cout << "Press q to quit.\n";
     // OpenCV can handle left-right
     // or up-down camera arrangements
     bool isVerticalStereo = fabs(P2.at<double>(1, 3)) > fabs(P2.at<double>(0, 3));
@@ -342,6 +349,8 @@ int main(int argc, char** argv)
     Size boardSize;
     string imagelistfn;
     bool showRectified = true;
+    float squareSize = 0.38f;
+    
 
     for( int i = 1; i < argc; i++ )
     {
@@ -356,6 +365,14 @@ int main(int argc, char** argv)
         else if( string(argv[i]) == "-h" )
         {
             if( sscanf(argv[++i], "%d", &boardSize.height) != 1 || boardSize.height <= 0 )
+            {
+                cout << "invalid board height" << endl;
+                return print_help();
+            }
+        }
+        else if( string(argv[i]) == "-s" )
+        {
+            if( sscanf(argv[++i], "%f", &squareSize) != 1 )
             {
                 cout << "invalid board height" << endl;
                 return print_help();
@@ -393,6 +410,6 @@ int main(int argc, char** argv)
         return print_help();
     }
 
-    StereoCalib(imagelist, boardSize, true, showRectified);
+    StereoCalib(imagelist, boardSize, true, showRectified, squareSize);
     return 0;
 }
